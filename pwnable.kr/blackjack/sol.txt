@@ -1,0 +1,51 @@
+Based on the size of the file, the initial thought is that this will
+be a more complex challenge than previously, and require some kind of
+code injection.
+
+However, looking over the code base, you will come across:
+
+		int betting() //Asks user amount to bet
+		{
+		 printf("\n\nEnter Bet: $");
+		 scanf("%d", &bet);
+
+		 if (bet > cash) //If player tries to bet more money than player has
+		 {
+			printf("\nYou cannot bet more money than you have.");
+			printf("\nEnter Bet: ");
+			scanf("%d", &bet);
+			return bet;
+		 }
+		 else return bet;
+		} // End Function
+
+Notice that this function checks that you don't bet more cash then you have...
+
+BUT it doesn't check that you bet over $0
+
+So, our bet will then be -1,000,000 to get us our prize.
+
+But we want to GAIN money, not lose it.
+
+		void stay()
+		{
+			...
+			if(player_total<dealer_total) //If player's total is less than dealer's total, loss
+			{
+				 printf("\nDealer Has the Better Hand. You Lose.\n");
+				 loss = loss+1;
+				 cash = cash - bet;
+				 printf("\nYou have %d Wins and %d Losses. Awesome!\n", won, loss);
+				 dealer_total=0;
+				 askover();
+			}
+			...
+		}
+
+Notice that when we lose, our bet is subtracted from our cash.
+
+Thus, to get our one million dollars, we just have to bet negative, and lose!
+
+Just stay when your card is dealt. If you win, just try again.
+
+The flag appears once a new game is played with $1000000.

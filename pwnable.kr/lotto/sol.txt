@@ -1,0 +1,19 @@
+In the code, you will find the following loop:
+
+// calculate lotto score
+int match = 0, j = 0;
+for(i=0; i<6; i++){
+	for(j=0; j<6; j++){
+		if(lotto[i] == submit[j]){
+			match++;
+		}
+	}
+}
+
+This loop will check if a byte is the same as another byte, in any order.
+
+For example, if lotto is abcde and submit is aaaaaa, each a will match the first a.
+
+Just keep entering the same character until you win! Something with ascii code below 45, like !!!!!!
+
+I tried this challenge 3 times, and won after 3, 4, and 4 attempts, so it shouldn't take long.
