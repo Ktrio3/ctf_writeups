@@ -1,0 +1,124 @@
+Note: This is less a solution and more a roadmap of what I attempted.
+
+If we run this program, and enter some values, we see that 
+the program aburptly stops. If we copy the code over, and compile it on
+our local machine, we see there is a segfault that occurs.
+
+For my initial values, I chose the lowest available size. (i.e. some 2^n)
+
+Let's crack out GDB.
+
+When run in GDB, we see the segfault occurs on movntps.
+
+0x80487cc <fast_memcpy+52>    movntps xmmword ptr [edx], xmm0
+
+I have no idea what this instruction does. After some googling,
+I found:
+
+http://www.jaist.ac.jp/iscenter-new/mpc/altix/altixdata/opt/intel/vtune/doc/users_guide/mergedProjects/analyzer_ec/mergedProjects/reference_olh/mergedProjects/instructions/instruct32_hh/vc197.htm
+
+Reading this was even more confusing; however, it says exceptions occur if memory is not aligned on 16-bit boundary.
+
+More googling:
+
+http://stackoverflow.com/questions/10224564/what-does-alignment-to-16-byte-boundary-mean-in-x86
+
+Well, our memory operand is xmm0... more googling XD
+
+https://en.wikibooks.org/wiki/X86_Assembly/SSE
+
+Printing this we get: 
+
+{
+  v4_float = {0, 0, 0, 0}, 
+  v2_double = {0, 0}, 
+  v16_int8 = {0 <repeats 16 times>}, 
+  v8_int16 = {0, 0, 0, 0, 0, 0, 0, 0}, 
+  v4_int32 = {0, 0, 0, 0}, 
+  v2_int64 = {0, 0}, 
+  uint128 = 0
+}
+
+Changing the size doesn't seem to have any effect on this.
+
+Let's take a look at the fastcopy code:
+
+if(len >= 64){
+		i = len / 64;
+		len &= (64-1);
+		while(i-- > 0){
+			__asm__ __volatile__ (
+			"movdqa (%0), %%xmm0\n"
+			"movdqa 16(%0), %%xmm1\n"
+			"movdqa 32(%0), %%xmm2\n"
+			"movdqa 48(%0), %%xmm3\n"
+			"movntps %%xmm0, (%1)\n"
+			"movntps %%xmm1, 16(%1)\n"
+			"movntps %%xmm2, 32(%1)\n"
+			"movntps %%xmm3, 48(%1)\n"
+			::"r"(src),"r"(dest):"memory");
+			dest += 64;
+			src += 64;
+		}
+	}
+
+From where this function is called, dest is the address of the malloc 
+block of the size that we requested.
+
+This must be the memory operand that needs to be aligned properly.
+
+i r edx reports edx contains 0x804d0a8 with size 128
+
+In gdb, p 0x804d0a8 / 16.0 gives 8408330.5, so this is NOT 16-bit aligned.
+
+Let's try some other sizes now.
+
+Changing the sizes has no effect on the address.
+
+This instruction works successfully for the size 64, so lets break and see what happens there.
+
+This memory address IS aligned properly with address 0x804d060 
+
+Huh... Changing the 64 to 69, we now get past 128, and fail on the 256
+
+Interesting... Adding 5 to 128 for 133 now gets us past 256
+
+Add 5 to all of the inputs >= 64, and we are in, one flag for us!
+
+However, I have ABSOLUTELY no idea why, other than it most likely has something to do with the memory alignment (as a milestone, I am now 1h30m in)
+
+When adding 5 to the previous block, the next block worked just fine.
+
+Is 5 unnecessary? Could it be 1? No, but 70 also works...
+
+It must be something in the way malloc reassigns addresses.
+
+Casually reading through https://en.wikipedia.org/wiki/C_dynamic_memory_allocation#Heap-based, I found:
+
+"Memory on the heap is allocated as "chunks", an 8-byte aligned data structure..."
+
+Could this be our issue? All 16-byte aligned addresses are also 8-byte aligned, since anything divisible by 16 is divisible by 8.
+
+For certain addresses, the chunk may be an odd multiple of 8, and thus NOT 16-byte aligned, while for others it may be an even multiple of 8, and thus 16-byte aligned.
+
+I feel like I'm headed in the right direction; the flag might help a bit:
+
+1_w4nn4_br34K_th3_m3m0ry_4lignm3nt
+
+Googling malloc break memory alignment:
+
+http://stackoverflow.com/questions/227897/how-to-allocate-aligned-memory-only-using-the-standard-library/227900
+
+The above stackoverflow page come up, and is quite an interesting read.
+
+As for this challenge, I am finished. Let's look up someone else's solution and see if they can explain this:
+
+http://werew.tk/article/6/memcpy-pwnablekr
+
+The above doesn't have much more in the way of explanation, but they do have pictures, which is nice.
+
+https://wr.informatik.uni-hamburg.de/_media/teaching/wintersemester_2013_2014/epc-14-haase-svenhendrik-alignmentinc-paper.pdf
+
+The above was a good read as well for understanding memory alignment in C.
+
+As for this challenge, I consider it done.

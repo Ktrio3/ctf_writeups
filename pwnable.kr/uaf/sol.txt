@@ -1,0 +1,6 @@
+This was my first time doing an exploit on the heap, let alone use after free, so I did use
+the following page to guide myself in the right direction. As this guide is very good,
+I won't repeat it here. Very happy with my first heap exploit; while I did have
+to resort to googling the solution, none of the concepts were over my head.
+
+https://www.fuzzysecurity.com/tutorials/expDev/13.html
