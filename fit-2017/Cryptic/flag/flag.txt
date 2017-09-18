@@ -1,1 +1,5 @@
+I can't remember, but I believe this was retrieved from a password protected zip file by
+using john the ripper or a similar program.
+
+ 
 FIT{f1s4a3DS2faQ1}
