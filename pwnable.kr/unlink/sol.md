@@ -3,6 +3,9 @@
 This challenge is nice enough to give us the source code for the program.
 Upon examining it, we see comments that head us in the right direction. This is a straightfoward challenge; exploit the heap!
 
+(THIS WRITE-UP IS IN PROGRESS. ADDRESS A TO RETURN IS ON THE RIGHT TRACK,
+BUT WRONG)
+
 ## Setup
 
 When the program is run, it provides the address of A on the stack, and the address of A on the heap. Finding the heap address is the major difficulty with heap exploits, so this will be quite helpful. These two addresses serve help us find the where and the what for writing.
@@ -84,7 +87,6 @@ This chunk of heap contains the structure B. We can see the fd and bk pointers (
 ### The shellcode
 
 We actually don't need to write shellcode! There is a function provided, shell, that can call the shell for us. We simply need to call this function.
-
 
 ## Exploit!
 
