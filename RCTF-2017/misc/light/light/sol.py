@@ -1,5 +1,5 @@
 from pymouse import *
-from pywinauto.application import Application
+#from pywinauto.application import Application
 
 window_width = 510  # Pre-determined. I used the Shutter tool on Ubuntu to get the width
 
@@ -57,6 +57,7 @@ def solve(puzzle, length, width, base_x, base_y, base_distance):
 
 
 def click(puzzle, length, width, x, y, base_x, base_y, base_distance):
+    global m
     # The list of differences we need to check
     #     X
     #   X   X
@@ -68,7 +69,7 @@ def click(puzzle, length, width, x, y, base_x, base_y, base_distance):
     values = [(-2, 0), (-1, 1), (0, 2), (1, 1), (2, 0), (1, -1), (0, -2), (-1, -1)]
 
     # Do the actual click in the gui
-
+    m.click(base_x + x * base_distance, base_y + y * base_distance, 1)
 
     for value in values:
         x_change = x + value[0]
@@ -118,13 +119,13 @@ print "Top left box is at (" + str(base_x) + ", " + str(base_y) + ")"
 
 m = PyMouse()
 m.click(base_x, base_y, 1)
-del m
+#del m
 
-app = pywinauto.Application().connect_(path='Light.exe')
+#app = pywinauto.Application().connect_(path='Light.exe')
 #app.MainDialog.ClickInput(coords=(953, 656))
-app.MainDialog.PrintControlIdentifiers()
+#app.MainDialog.PrintControlIdentifiers()
 
-puzzle = open("data", "r")
+puzzle = open("meow", "r")
 
 puzzle_state = puzzle.read()
 
